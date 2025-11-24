@@ -3,12 +3,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class procupineVAE(nn.Module):
-    def __init__(self, gene_dim, hidden_dim, latent_dim):
+    def __init__(self, rna_dim, hidden_dim, latent_dim):
         super().__init__()
 
-        self.gene_dim = gene_dim
+        self.rna_dim = rna_dim
         self.encoder = nn.Sequential(
-            nn.Linear(gene_dim, hidden_dim),
+            nn.Linear(rna_dim, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, hidden_dim),
             nn.ReLU(),
@@ -24,7 +24,7 @@ class procupineVAE(nn.Module):
             nn.ReLU(),
             nn.Linear(hidden_dim, hidden_dim),
             nn.ReLU(),
-            nn.Linear(hidden_dim, gene_dim),
+            nn.Linear(hidden_dim, rna_dim),
             nn.Sigmoid()
         )
         
