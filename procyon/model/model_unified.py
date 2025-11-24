@@ -30,6 +30,9 @@ from procyon.training.training_args_IT import ModelArgs, update_model_args_data_
 from procyon.training.train_utils import unwrap_model, barrier
 from procyon.data.constants import DATASET_ID
 
+from procyon.model.procupine_encoder import procupineVAE
+
+
 DEFAULT_PRETRAINED_WEIGHTS_DIR = f'{DATA_DIR}/model_weights/'
 
 SAVE_TRAINING_STATE_FNAME = 'training_state.pt'
@@ -295,6 +298,27 @@ class UnifiedProCyon(nn.Module):
             )})
         else:
             self.drug_structure_embeddings = None
+
+        if self.config.use_scRNA_embeddings:
+            print("TODO: add in case where we already have embeddings (if necessary)")
+        else:
+            self.procupineVAE = procupineVAE(rna_dim=self.config.rna_dim, hidden_dim=self.config.rna_hidden, latent_dim=self.config.rna_latent)
+            lora_config = LoraConfig(
+                    task_type="FEATURE_EXTRACTION",
+                    inference_mode=False,
+                    r=config.scrna_lora_r,
+                    lora_alpha=config.scrna_lora_alpha,
+                    lora_dropout=0.1,
+                    target_modules=["encoder.0", "encoder.2", "encoder.4", 
+                                    "mu_layer", "logvar_layer"],
+                    bias="none"
+            )
+            if config.freeze_scrna_encoder == "lora":
+                for pn, p in self.procupineVAE.model.named_parameters():
+                    if not 'lora' in pn:
+                        p.requires_grad_(False)
+                    print(pn, p.requires_grad)
+
 
 
         # Projector definitions: --------------------------------------------------:

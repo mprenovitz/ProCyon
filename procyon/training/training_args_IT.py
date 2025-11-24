@@ -27,7 +27,18 @@ def replace_custom_dir(data_obj):
 class ModelArgs:
     # TODO: @Owen, @Tom, revise the model arguments here. Remove any unused args
 
+    #NOTE: keeping Procupine sperate from everything else for ease of use while we edit
+    
+    ############ scRNA (Procupine)
+    use_scRNA_embeddings: bool = field(
+        default=True,
+        metadata= {
+            "help": "If true, uses scRNA-seq embeddings by retrieving from saved path"
+        }
+    )
+
     ######################## Encoders ########################
+   
     ############ Protein
     protein_encoder_num_params: str = field(
         default="650m",
