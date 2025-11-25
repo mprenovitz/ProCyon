@@ -7,14 +7,13 @@ from datasets import load_dataset
 
 def parseArguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--is_cvae", action="store_true")
-    parser.add_argument("--load_from_checkpoint", action="store_true")
-    parser.add_argument("--checkpoint_path", action="store_true")
+    parser.add_argument("--load_from_checkpoint", default=False, action="store_true")
     parser.add_argument("--loss_fn", default='mse')
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--num_epochs", type=int, default=10)
-    parser.add_argument("--latent_size", type=int, default=15)
-    parser.add_argument("--input_size", type=int, default=28 * 28)
+    parser.add_argument("--latent_size", type=int, default=128)
+    parser.add_argument("--hidden_size", type=int, default=512)
+    parser.add_argument("--input_size", type=int, default=2000)
     parser.add_argument("--learning_rate", type=float, default=1e-3)
     args = parser.parse_args()
     return args
@@ -43,7 +42,7 @@ def save_model(model, epoch):
 def forward(args):
     train_dataset = load_dataset("csv", "/datasets/5k_pbmc_protein.csv")
 
-    model = procupineVAE(args.input_size, latent_size=args.latent_size)
+    model = procupineVAE(args.input_size, args.hidden_size, args.latent_size)
     if args.load_from_checkpoint:
         model =  torch.load(args.checkpoint_path)
 

@@ -51,7 +51,7 @@ class procupineVAE(nn.Module):
     def mse_loss(self, y, y_pred, mu, log_var):
         return F.mse_loss(y_pred, y) + torch.sum(-.5 * (1+log_var - (mu ** 2) - torch.exp(log_var)))
 
-    def nb_loss(self, y, y_pred):
+    def nb_loss(self, y, y_pred, mu, log_var):
         #main issue here is im just confused how we would use the 
         # binomial distribution since we aren't keeping trakc the number of trials anywhere
         pass
