@@ -16,7 +16,7 @@ class procupineVAE(nn.Module):
             nn.ReLU(),
         )
         self.mu_layer = nn.Linear(hidden_dim, latent_dim)
-        self.logvar_layer = nn.Linear(hidden_dim, latent_dim)
+        self.log_var_layer = nn.Linear(hidden_dim, latent_dim)
         self.decoder = nn.Sequential(
             nn.Linear(latent_dim, hidden_dim),
             nn.ReLU(),
@@ -31,25 +31,26 @@ class procupineVAE(nn.Module):
     def forward(self, x):
         x_hat = None
         mu = None
-        logvar = None
+        log_var = None
 
         encoder = self.encoder(x)
         mu_input = encoder
-        logvar_input = encoder
+        log_var_input = encoder
         mu =self.mu_layer(mu_input)
-        logvar = self.logvar_layer(logvar_input)
-        z = self.reparametrize(mu, logvar)
+        log_var = self.log_var_layer(log_var_input)
+        z = self.reparametrize(mu, log_var)
         x_hat = self.decoder(z)
 
-        return x_hat, mu, logvar
+        return x_hat, mu, log_var
 
-    def reparametrize(self, mu, logvar):
+    def reparametrize(self, mu, log_var):
         eps = torch.randn_like(mu)
-        std = torch.exp(0.5 * logvar)
+        std = torch.exp(0.5 * log_var)
         return mu + std * eps
 
-    def mse_loss(self, y, y_pred):
-        return F.mse_loss(y_pred, y)
+    def mse_loss(self, y, y_pred, mu, log_var):
+        return F.mse_loss(y_pred, y) + torch.sum(-.5 * (1+log_var - (mu ** 2) - torch.exp(log_var)))
+
     def nb_loss(self, y, y_pred):
         #main issue here is im just confused how we would use the 
         # binomial distribution since we aren't keeping trakc the number of trials anywhere
